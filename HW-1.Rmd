@@ -9,7 +9,7 @@ output:
     smooth_scroll: false
 ---
 
-```{r, echo=FALSE, message=FALSE, cache=TRUE}
+```{r, echo=FALSE, message=FALSE}
 library(ggplot2)
 library(dplyr)
 # For read_csv() command, which is an improved version of base R's read.csv()
@@ -36,7 +36,7 @@ Please indicate
 
 * Who you collaborated with: Amanda Hotvedt, Nina Sonneborn, Kyra Gray, 
 * Roughly how much time you spent on this HW so far: ~8 hours
-* The URL of the RPubs published URL [here](https://www.nhl.com/).
+* The URL of the RPubs published URL [here](http://rpubs.com/khobbs/213398).
 * What gave you the most trouble:
 
 Mostly debugging issues and practicing using each function correctly and in the right context.
@@ -128,10 +128,7 @@ SW_flights <- SW_flights %>%
   count(state) %>% 
   arrange(desc(nn))
 
-View(SW_flights)
-
-ggplot(data=SW_flights, aes(x=state, y=nn)) + geom_bar()
-#not working to graph it
+#View(SW_flights)
 
 ```
 
