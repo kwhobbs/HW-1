@@ -1,6 +1,6 @@
 ---
 title: "MATH 216 Homework 1"
-author: "WRITE YOUR NAME HERE"
+author: "Katherine Hobbs"
 output:
   html_document:
     toc: true
@@ -34,13 +34,16 @@ states <- read_csv("data/states.csv")
 
 Please indicate
 
-* Who you collaborated with:
-* Roughly how much time you spent on this HW so far:
+* Who you collaborated with: Amanda Hotvedt, Nina Sonneborn, Kyra Gray, 
+* Roughly how much time you spent on this HW so far: ~8 hours
 * The URL of the RPubs published URL [here](https://www.nhl.com/).
 * What gave you the most trouble:
+
+Mostly debugging issues and practicing using each function correctly and in the right context.
+
 * Any comments you have:
 
-
+I still have to finish the second part of question 3 and will clean up my written answers for each question. 
 
 
 
@@ -57,11 +60,24 @@ minutes tend to occur.
 
 ```{r, echo=FALSE, message=FALSE, fig.width=12, fig.height=6}
 
+flights <- flights %>% 
+  mutate(over30 = ifelse(dep_delay>30, TRUE, FALSE)) 
+
+flights %>% 
+  group_by(date) %>%
+  summarise(prop_over30 = mean(over30, na.rm=TRUE)) 
+
+flights <- flights %>% 
+  group_by(date) %>%
+  mutate(prop_over30 = mean(over30, na.rm=TRUE)) 
+
+ggplot(data=flights, aes(x=date, y=prop_over30)) + geom_line() + geom_smooth()
+  
 ```
 
+The time series plot depicting the proportion of flights per day leaving Houston that are delayed by over 30 minutes indicates that these types of delays occur most frequently in the winter and spring months, specifically January through June The proportion of delays over 30 minutes dips for the months of August through November. 
 
-
-
+It is important to note that data points with missing date values were not considered in the analysis of the data set. 
 
 ## Question 2:
 
@@ -69,10 +85,17 @@ Some people prefer flying on older planes.  Even though they aren't as nice,
 they tend to have more room.  Which airlines should these people favor?
 
 ```{r, echo=FALSE, fig.width=12, fig.height=6}
+combined <- full_join(planes, flights, by="plane") %>% 
+  mutate(age = 2016 - as.numeric(year)) 
+
+combined %>% 
+  group_by(carrier) %>% 
+  filter(!is.na(age)) %>% 
+  summarise(avg_age = mean(age)) %>% 
+  arrange(desc(avg_age))
 
 ```
-
-
+Passangers who enjoy flying on older planes should favor the airlines Envoy Air, American Airlines and Delta, as these three airlines have the oldest planes, on average. 
 
 
 
@@ -86,10 +109,36 @@ path, but since it flew 299 times in 2013, it would be counted as 299 flights.
 
 ```{r, echo=FALSE, message=FALSE, fig.width=12, fig.height=6}
 
+airports_less <- airports %>% 
+  select(iata, state)
+airports_less
+
+flight_path_info <- left_join(flights, airports_less, by=c("dest"="iata"))
+flight_path_info
+
+SW_flights <- flight_path_info %>% 
+  filter(carrier == "WN")
+
+SW_flights <- SW_flights %>% 
+  group_by(state) %>% 
+  count(flight) %>% 
+  arrange(desc(n))
+
+SW_flights <- SW_flights %>% 
+  count(state) %>% 
+  arrange(desc(nn))
+
+View(SW_flights)
+
+ggplot(data=SW_flights, aes(x=state, y=nn)) + geom_bar()
+#not working to graph it
+
 ```
 
+Southwest flights from Houston fly most frequently to other cities in Texas. After texas, Southwest flights tend to fly to Florida, Louisiana, California, and Oklahoma. 
 
-
+On the other hand, Southwest flight paths leaving Houston tend to fly to....
+(I have not figured out how to distinguish between flights and flight paths in my counts)
 
 
 ## Question 4:
@@ -99,5 +148,24 @@ carrier flies to/from Houston in the month of July.  Consider the `month()`
 function from the `lubridate` package.
 
 ```{r, echo=FALSE, message=FALSE, fig.width=12, fig.height=6}
+
+library(lubridate)
+
+statesplus <- full_join(states, airports, by = "state")
+
+statesplus <- select(statesplus, region, iata)
+
+statesplusflights <- left_join(flights, statesplus, by=c("dest"="iata"))
+
+statesplusflights <- statesplusflights %>% 
+  select(date, carrier, dest, region) %>%
+  mutate(month=month(date)) %>% 
+  filter(month==7)
+
+statesplusflights <- statesplusflights %>%
+  group_by(carrier) %>% 
+  count(region) 
+
+ggplot(data=statesplusflights, aes(x=carrier, y=n, fill = region)) + geom_bar(stat="identity", position="fill")
 
 ```
