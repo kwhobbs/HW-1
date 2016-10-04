@@ -92,7 +92,8 @@ combined %>%
   kable(digits=1)
 
 ```
-Passangers who enjoy flying on older planes should favor Envoy Air, American Airlines, Delta, and US Airways, as these airlines have the oldest planes, on average. Notably, Envoy Air is a wholly owned subsidiary of American Airlines. 
+
+Passengers who enjoy flying on older planes should favor Envoy Air, American Airlines, Delta, and US Airways, as these airlines have the oldest planes, on average. Notably, Envoy Air is a wholly owned subsidiary of American Airlines. 
 
 ## Question 3:
 
@@ -108,21 +109,26 @@ path, but since it flew 299 times in 2013, it would be counted as 299 flights.
 SW_flight_paths <- airports %>% 
   select(iata, state) %>% 
   left_join(flights,., by=c("dest"="iata")) %>% 
-  filter(carrier == "WN") %>% 
+  filter(carrier == "WN")
+
+SW_flight_paths %>% 
   group_by(state, flight) %>%
   tally() %>% 
   count(state) %>% 
-  arrange(desc(nn))
+  arrange(desc(nn)) %>% 
+  kable(col.names= c("state" , "number of flight paths"), caption = "Number of SW Flight Paths From Houston Arriving in Each State")
 
 #flights
 SW_flights <- airports %>% 
   select(iata, state) %>% 
   left_join(flights,., by=c("dest"="iata")) %>% 
-  filter(carrier == "WN") %>% 
+  filter(carrier == "WN")
+
+SW_flights %>% 
   group_by(state) %>% 
   tally() %>% 
-  arrange(desc(n))
-  
+  arrange(desc(n)) %>% 
+  kable(col.names= c("state" , "number of flights"), caption = "Number of SW Flights From Houston Arriving in Each State")
 
 ```
 Southwest flight paths from Houston tend to fly to other cities in Texas. After texas, Southwest flights tend to fly to Florida, Louisiana, California, and Oklahoma. 
@@ -138,8 +144,7 @@ function from the `lubridate` package.
 
 ```{r, echo=FALSE, message=FALSE, fig.width=12, fig.height=6}
 
-statesplus <- full_join(states, airports, by = "state") %>% 
-  select(statesplus, region, iata)
+statesplus <- full_join(states, airports, by = "state") 
 
 statesplusflights <- left_join(flights, statesplus, by=c("dest"="iata")) %>% 
   select(date, carrier, dest, region) %>%
@@ -155,7 +160,5 @@ ggplot(data=statesplusflights, aes(x=carrier, y=n, fill = region)) +
   ylab("Proportion of Flights") +
   ggtitle("Proportion of Flights To and From Houston Arriving in Each Region")
   
-  
-
 
 ```
